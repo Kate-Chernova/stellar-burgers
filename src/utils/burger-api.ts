@@ -2,6 +2,7 @@ import { setCookie, getCookie } from './cookie';
 import { TIngredient, TOrder, TOrdersData, TUser } from './types';
 
 const URL = process.env.BURGER_API_URL;
+console.log(URL)
 
 const checkResponse = <T>(res: Response): Promise<T> =>
   res.ok ? res.json() : res.json().then((err) => Promise.reject(err));
@@ -99,26 +100,8 @@ export const getOrdersApi = () =>
     return Promise.reject(data);
   });
 
-type TOwner = {
-  name: string;
-  email: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type TNewOrder = {
-  _id: string;
-  status: string;
-  name: string;
-  owner: TOwner;
-  createdAt: string;
-  updatedAt: string;
-  number: number;
-  price: number;
-};
-
 type TNewOrderResponse = TServerResponse<{
-  order: TNewOrder;
+  order: TOrder;
   name: string;
 }>;
 
