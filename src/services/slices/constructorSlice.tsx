@@ -1,43 +1,48 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {TConstructorIngredient, TIngredient} from '../../utils/types';
-import {v4 as uuid} from 'uuid';
-
-
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { TConstructorIngredient, TIngredient } from '../../utils/types';
+import { v4 as uuid } from 'uuid';
 
 interface IConstructorSlice {
-  bun:  TConstructorIngredient | null;
+  bun: TConstructorIngredient | null;
   ingredients: TConstructorIngredient[];
 }
 
 const initialState: IConstructorSlice = {
   bun: null,
   ingredients: []
-}
+};
 
 export const constructorSlice = createSlice({
   name: 'burgerSlice',
   initialState,
   reducers: {
-    // Добавление ингредиента
-    addIngredients: (state, action: PayloadAction<TIngredient>) => {
-      if (action.payload.type === 'bun') {
-        state.bun = {...action.payload, id: uuid()};
-      }
-      else {
-        state.ingredients.push({...action.payload, id: uuid()})
-      }
+    // Добавление ингредиента с использованием prepare
+    addIngredient: {
+      reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
+        if (action.payload.type === 'bun') {
+          state.bun = action.payload;
+        } else {
+          state.ingredients.push(action.payload);
+        }
+      },
+      prepare: (ingredient: TIngredient) => ({
+        payload: { ...ingredient, id: uuid() } // Генерируем id здесь
+      })
     },
+    
     // Удаление ингредиента
-    removeIngredients: (state, {payload}: PayloadAction<string>) => {
-      // если выбрали элемент, то он не попадает в отфильтрованный список
+    removeIngredient: (state, { payload }: PayloadAction<string>) => {
       state.ingredients = state.ingredients.filter((item) => item.id !== payload);
     },
-    resetConstructor : (state) => {
+    
+    // Сброс конструктора
+    resetConstructor: (state) => {
       state.bun = null;
       state.ingredients = [];
     },
-    // Перемещение ингредиента вверх 
-    moveIngredientsUp: (state, action) => {
+    
+    // Перемещение ингредиента вверх
+    moveIngredientUp: (state, action: PayloadAction<{ id: string }>) => {
       const index = state.ingredients.findIndex((item) => item.id === action.payload.id);
       if (index > 0) {
         const temp = state.ingredients[index];
@@ -45,8 +50,9 @@ export const constructorSlice = createSlice({
         state.ingredients[index - 1] = temp;
       }
     },
+    
     // Перемещение ингредиента вниз
-    moveIngredientsDown: (state, action) => {
+    moveIngredientDown: (state, action: PayloadAction<{ id: string }>) => {
       const index = state.ingredients.findIndex((item) => item.id === action.payload.id);
       if (index < state.ingredients.length - 1) {
         const temp = state.ingredients[index];
@@ -54,7 +60,8 @@ export const constructorSlice = createSlice({
         state.ingredients[index + 1] = temp;
       }
     },
-    // очищение корзины 
+    
+    // Очищение конструктора
     clearConstructor: (state) => {
       state.bun = null;
       state.ingredients = [];
@@ -64,10 +71,19 @@ export const constructorSlice = createSlice({
     getBunSelector: (state) => state.bun,
     getIngredientsConstructorSelector: (state) => state.ingredients
   }
-}
-);
+});
 
-export const { addIngredients, removeIngredients, moveIngredientsUp, moveIngredientsDown, clearConstructor } = constructorSlice.actions;
+// Экспорт экшенов
+export const { 
+  addIngredient, 
+  removeIngredient, 
+  moveIngredientUp, 
+  moveIngredientDown, 
+  clearConstructor,
+  resetConstructor 
+} = constructorSlice.actions;
+
+// Экспорт селекторов
 export const { getBunSelector, getIngredientsConstructorSelector } = constructorSlice.selectors;
 
 export default constructorSlice.reducer;

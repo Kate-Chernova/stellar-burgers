@@ -34,9 +34,17 @@ const App = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
+      
+      {/* Основные маршруты - для прямой ссылки (отдельные страницы) */}
       <Routes location={backgroundLocation || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
+        
+        {/* Публичные маршруты с деталями (отдельные страницы) */}
+        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route path='/feed/:number' element={<OrderInfo />} />
+        
+        {/* Маршруты авторизации (только для неавторизованных) */}
         <Route
           path='/login'
           element={
@@ -69,6 +77,8 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        
+        {/* Приватные маршруты */}
         <Route
           path='/profile'
           element={
@@ -79,18 +89,33 @@ const App = () => {
         />
         <Route
           path='/profile/orders'
-          element={<ProtectedRoute><ProfileOrders /></ProtectedRoute>}
+          element={
+            <ProtectedRoute>
+              <ProfileOrders />
+            </ProtectedRoute>
+          }
         />
-        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        
+        {/* Приватный маршрут с деталями заказа (отдельная страница) */}
+        <Route
+          path='/profile/orders/:number'
+          element={
+            <ProtectedRoute>
+              <OrderInfo />
+            </ProtectedRoute>
+          }
+        />
+        
         <Route path='*' element={<NotFound404 />} />
       </Routes>
 
+      {/* Модальные окна - отображаются поверх основного контента */}
       {backgroundLocation && (
         <Routes>
           <Route
             path='/feed/:number'
             element={
-              <Modal title='' onClose={() => navigate('/feed')}>
+              <Modal title='' onClose={() => navigate(-1)}>
                 <OrderInfo />
               </Modal>
             }
@@ -98,16 +123,19 @@ const App = () => {
           <Route
             path='/ingredients/:id'
             element={
-              <Modal title='' onClose={() => navigate('/')}>
+              <Modal title='' onClose={() => navigate(-1)}>
                 <IngredientDetails />
               </Modal>
             }
           />
+          {/* Защищенный маршрут в модальном окне */}
           <Route
             path='/profile/orders/:number'
             element={
-              <Modal title='' onClose={() => navigate('/profile/orders')}>
-                <OrderInfo />
+              <Modal title='' onClose={() => navigate(-1)}>
+                <ProtectedRoute>
+                  <OrderInfo />
+                </ProtectedRoute>
               </Modal>
             }
           />
