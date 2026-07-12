@@ -45,7 +45,7 @@ export const constructorSlice = createSlice({
         state.ingredients[index - 1] = temp;
       }
     },
-  
+    // Перемещение ингредиента вниз
     moveIngredientsDown: (state, action) => {
       const index = state.ingredients.findIndex((item) => item.id === action.payload.id);
       if (index < state.ingredients.length - 1) {
@@ -71,4 +71,3 @@ export const { addIngredients, removeIngredients, moveIngredientsUp, moveIngredi
 export const { getBunSelector, getIngredientsConstructorSelector } = constructorSlice.selectors;
 
 export default constructorSlice.reducer;
-
