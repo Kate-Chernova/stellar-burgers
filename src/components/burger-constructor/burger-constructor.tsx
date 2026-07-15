@@ -1,65 +1,58 @@
-import { FC, useMemo, useEffect } from 'react';
-import { TConstructorIngredient } from '@utils-types';
-import { BurgerConstructorUI } from '@ui';
-
-import { constructorSlice, getBunSelector, getIngredientsConstructorSelector } from '../../services/slices/constructorSlice';
+import React, { FC, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { clearOrder, createOrder, getOrderLoadingSelector, getOrderSelector, getOrderErrorSelector } from '../../services/slices/orderSlice';
-import { getAuthCheckSelector } from '../../services/slices/userSlice';
+import { BurgerConstructorUI } from '@ui';
+import { TConstructorIngredient } from '@utils-types';
+
+import {
+  getConstructorState,
+  getOrderRequest,
+  getOrderModalData,
+  resetModal,
+  setRequest,
+  getOrderBurger
+} from '../../services/slices/constructor';
 import { useDispatch, useSelector } from '../../services/store';
+import { getUserData } from '../../services/slices/user';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const bun = useSelector(getBunSelector);
-  const ingredients = useSelector(getIngredientsConstructorSelector);
-  const constructorItems = { bun, ingredients };
-
-  const orderRequest = useSelector(getOrderLoadingSelector);
-  const orderModalData = useSelector(getOrderSelector);
-  const orderError = useSelector(getOrderErrorSelector);
-
-  const authCheck = useSelector(getAuthCheckSelector);
-
-  // Очищаем конструктор только при успешном создании заказа
-  useEffect(() => {
-    if (orderModalData && !orderRequest) {
-      // Заказ успешно создан - очищаем конструктор
-      dispatch(constructorSlice.actions.clearConstructor());
-      dispatch(constructorSlice.actions.resetConstructor());
-    }
-  }, [orderModalData, orderRequest, dispatch]);
+  const constructorItems = useSelector(getConstructorState);
+  const orderModalData = useSelector(getOrderModalData);
+  const orderRequest = useSelector(getOrderRequest);
+  const isAuthenticated = useSelector(getUserData).isAuthenticated;
 
   const onOrderClick = () => {
-    if (!constructorItems.bun || orderRequest) return;
-    if (!authCheck) {
+    if (!constructorItems.bun) return;
+    if (!isAuthenticated) {
       navigate('/login');
       return;
     }
-    
-    const order = [
-      constructorItems.bun._id,
-      ...constructorItems.ingredients.map((item) => item._id),
-      constructorItems.bun._id
-    ];
-    dispatch(createOrder(order));
+    dispatch(setRequest(true));
+    dispatch(getOrderBurger(orderIngredients));
   };
 
   const closeOrderModal = () => {
-    // Только закрываем модальное окно, НЕ очищаем конструктор
-    dispatch(clearOrder());
+    dispatch(setRequest(false));
+    dispatch(resetModal());
   };
 
-  const price = useMemo(
-    () =>
-      (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce(
-        (s: number, v: TConstructorIngredient) => s + v.price,
-        0
-      ),
-    [constructorItems]
-  );
+  const price = useMemo(() => {
+    const { ingredients, bun } = constructorItems;
+    const bunPrice = bun ? bun.price * 2 : 0;
+    const ingredientsPrice = ingredients.reduce(
+      (sum: number, item: TConstructorIngredient) => sum + item.price,
+      0
+    );
+    return bunPrice + ingredientsPrice;
+  }, [constructorItems]);
+
+  const orderIngredients = useMemo(() => {
+    const { ingredients, bun } = constructorItems;
+    const ingredientIds = ingredients.map((i: TConstructorIngredient) => i._id);
+    return bun ? [bun._id, ...ingredientIds, bun._id] : [];
+  }, [constructorItems]);
 
   return (
     <BurgerConstructorUI
