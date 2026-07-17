@@ -1,28 +1,31 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { FC, SyntheticEvent, useState, useEffect } from 'react';
 import { LoginUI } from '@ui-pages';
-
-import { getLoginUser, getUserData } from '../../services/slices/user';
+import { getLoginUser, getUserData, resetError } from '../../services/slices/user';
 import { useDispatch, useSelector } from '../../services/store';
-import { Navigate } from 'react-router-dom';
 
 export const Login: FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { error, isAuthenticated } = useSelector(getUserData);
-
+  
+  const { error, loginUserRequest } = useSelector(getUserData);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(resetError());
+    return () => {
+      dispatch(resetError());
+    };
+  }, [dispatch]);
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     if (!email || !password) {
       return;
     }
+    
+    dispatch(resetError());
     dispatch(getLoginUser({ email, password }));
   };
-
-  if (isAuthenticated) {
-    return <Navigate to={'/'} />;
-  }
 
   return (
     <LoginUI
@@ -32,6 +35,7 @@ export const Login: FC = () => {
       password={password}
       setPassword={setPassword}
       handleSubmit={handleSubmit}
+      isLoading={loginUserRequest}
     />
   );
 };
