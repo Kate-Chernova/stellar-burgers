@@ -1,45 +1,92 @@
-import { FC, useEffect, useMemo } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
-import { getIngredientData } from '../../services/slices/ingredient';
-import { getOrderByNumber, getOrderData } from '../../services/slices/order';
-import { useParams } from 'react-router-dom';
 
-import { useDispatch, useSelector } from '../../services/store';
+import { TIngredient, TOrder } from '@utils-types';
+import { useSelector } from '../../services/store';
+import { getOrderByNumberApi } from '../../utils/burger-api';
 
 export const OrderInfo: FC = () => {
-  const { getOrderByNumberResponse, request } = useSelector(getOrderData);
-  const dispatch = useDispatch();
-  const number = Number(useParams().number);
+  const { number } = useParams<{ number: string }>();
+  const { pathname } = useLocation();
 
-  const { ingredients } = useSelector(getIngredientData);
+  const isFeedPage = pathname.startsWith('/feed');
+  const isProfileOrdersPage = pathname.startsWith('/profile/orders');
+
+  const ingredients = useSelector(
+    (state) => state.ingredients.items
+  ) as TIngredient[];
+
+  const feedOrders = useSelector((state) => state.feed.orders);
+  const profileOrders = useSelector((state) => state.profileOrders.orders);
+
+  const [fetchedOrder, setFetchedOrder] = useState<TOrder | null>(null);
+
+
+  const orderFromLists = useMemo(() => {
+    const orderNumber = Number(number);
+    if (!orderNumber) return null;
+
+    if (isFeedPage)
+      return feedOrders.find((o) => o.number === orderNumber) ?? null;
+    if (isProfileOrdersPage)
+      return profileOrders.find((o) => o.number === orderNumber) ?? null;
+
+    return (
+      feedOrders.find((o) => o.number === orderNumber) ??
+      profileOrders.find((o) => o.number === orderNumber) ??
+      null
+    );
+  }, [number, isFeedPage, isProfileOrdersPage, feedOrders, profileOrders]);
+
   useEffect(() => {
-    dispatch(getOrderByNumber(number));
-  }, []);
-  const orderInfo = useMemo(() => {
-    if (!getOrderByNumberResponse || !ingredients.length) return null;
+    const orderNumber = Number(number);
+    if (!orderNumber) return;
 
-    const date = new Date(getOrderByNumberResponse.createdAt);
+    if (orderFromLists) {
+      setFetchedOrder(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    getOrderByNumberApi(orderNumber)
+      .then((res) => {
+        const order = res.orders?.[0] ?? null;
+        if (!cancelled) setFetchedOrder(order);
+      })
+      .catch(() => {
+        if (!cancelled) setFetchedOrder(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [number, orderFromLists]);
+
+  // 3) Источник данных: store -> иначе fetchedOrder
+  const orderData = orderFromLists ?? fetchedOrder;
+
+  // 4) Готовим данные для UI
+  const orderInfo = useMemo(() => {
+    if (!orderData || !ingredients.length) return null;
+
+    const date = new Date(orderData.createdAt);
 
     type TIngredientsWithCount = {
       [key: string]: TIngredient & { count: number };
     };
 
-    const ingredientsInfo = getOrderByNumberResponse.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
-        if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
-          if (ingredient) {
-            acc[item] = {
-              ...ingredient,
-              count: 1
-            };
-          }
+    const ingredientsInfo = orderData.ingredients.reduce(
+      (acc: TIngredientsWithCount, itemId) => {
+        if (!acc[itemId]) {
+          const ingredient = ingredients.find((ing) => ing._id === itemId);
+          if (ingredient) acc[itemId] = { ...ingredient, count: 1 };
         } else {
-          acc[item].count++;
+          acc[itemId].count++;
         }
-
         return acc;
       },
       {}
@@ -51,14 +98,14 @@ export const OrderInfo: FC = () => {
     );
 
     return {
-      ...getOrderByNumberResponse,
+      ...orderData,
       ingredientsInfo,
       date,
       total
     };
-  }, [getOrderByNumberResponse, ingredients]);
+  }, [orderData, ingredients]);
 
-  if (!orderInfo || request) {
+  if (!orderInfo) {
     return <Preloader />;
   }
 

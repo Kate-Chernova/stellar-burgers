@@ -1,41 +1,50 @@
-import { FC, SyntheticEvent, useState, useEffect } from 'react';
+import { FC, SyntheticEvent, useState } from 'react';
+import { useLocation, useNavigate, type Location } from 'react-router-dom';
+
 import { LoginUI } from '@ui-pages';
-import { getLoginUser, getUserData, resetError } from '../../services/slices/user';
+
 import { useDispatch, useSelector } from '../../services/store';
+import { loginUser } from '../../services/slices/userSlice';
+
+type TLocationState = {
+  from?: Location;
+};
 
 export const Login: FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  const { error, loginUserRequest } = useSelector(getUserData);
+
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(resetError());
-    return () => {
-      dispatch(resetError());
-    };
-  }, [dispatch]);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Если мы пришли на /login из ProtectedRoute, там лежит state.from
+  // Если нет — после логина отправляем на главную
+  const from = (location.state as TLocationState | null)?.from?.pathname || '/';
+
+  // Берём ошибку из стора, чтобы показать её в UI
+  const errorText = useSelector((state) => state.user.error) ?? '';
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      return;
-    }
-    
-    dispatch(resetError());
-    dispatch(getLoginUser({ email, password }));
+
+    dispatch(loginUser({ email, password }))
+      .unwrap()
+      .then(() => {
+        navigate(from, { replace: true });
+      })
+      .catch(() => {});
   };
 
   return (
     <LoginUI
-      errorText={error || ''}
+      errorText={errorText}
       email={email}
       setEmail={setEmail}
       password={password}
       setPassword={setPassword}
       handleSubmit={handleSubmit}
-      isLoading={loginUserRequest}
     />
   );
 };
