@@ -4,16 +4,14 @@ import App from './components/app/app';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './services/store';
-
 const container = document.getElementById('root') as HTMLElement;
+console.log('INDEX');
 const root = ReactDOMClient.createRoot(container!);
 
 root.render(
-  <React.StrictMode>
+  <Provider store={store}>
     <BrowserRouter>
-      <Provider store={store}>
-        <App />
-      </Provider>
+      <App />
     </BrowserRouter>
-  </React.StrictMode>
+  </Provider>
 );

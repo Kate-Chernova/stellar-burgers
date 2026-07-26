@@ -1,67 +1,53 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
-import { getUser, getUserData, updateUser } from '../../services/slices/user';
 import { useDispatch, useSelector } from '../../services/store';
-import { Preloader } from '@ui';
+import { updateUser } from '../../services/slices/userSlice';
+import { selectUser } from '@selectors';
 
 export const Profile: FC = () => {
-  const data = useSelector(getUserData).user;
-  const loading = useSelector(getUserData).request;
-  const [isFormChanged, setIsFormChanged] = useState(false);
   const dispatch = useDispatch();
-
-  const user = {
-    name: data?.name || '',
-    email: data?.email || ''
-  };
+  const user = useSelector(selectUser);
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    name: user?.name || '',
+    email: user?.email || '',
     password: ''
   });
 
   useEffect(() => {
-    if (data) {
-      setFormValue({
-        name: data.name || '',
-        email: data.email || '',
-        password: ''
-      });
-    }
-  }, [data]);
+    setFormValue((prevState) => ({
+      ...prevState,
+      name: user?.name || '',
+      email: user?.email || ''
+    }));
+  }, [user]);
 
-  useEffect(() => {
-    setIsFormChanged(
-      formValue.name !== user.name ||
-        formValue.email !== user.email ||
-        !!formValue.password
-    );
-  }, [formValue, user]);
+  const isFormChanged =
+    formValue.name !== user?.name ||
+    formValue.email !== user?.email ||
+    !!formValue.password;
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    dispatch(updateUser(formValue))
-      .unwrap()
-      .then(() => {
-        setIsFormChanged(false);
-        setFormValue({ ...formValue, password: '' });
-        dispatch(getUser());
-      });
+    if (formValue.password.length == 0 || formValue.password.length >= 5)
+      dispatch(updateUser(formValue))
+        .unwrap()
+        .then(() => {
+          setFormValue((prevState) => ({
+            ...prevState,
+            password: ''
+          }));
+        })
+        .catch(() => {});
   };
-
-  if (loading) {
-    return <Preloader />;
-  }
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name || '',
+      email: user?.email || '',
       password: ''
     });
-    setIsFormChanged(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

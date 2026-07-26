@@ -1,15 +1,15 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { AppHeaderUI } from '@ui';
-
+import { Outlet } from 'react-router-dom';
 import { useSelector } from '../../services/store';
-import { getUserData } from '../../services/slices/user';
+import { selectUser } from '@selectors';
 
 export const AppHeader: FC = () => {
-  const user = useSelector(getUserData).user;
-  const userName = user?.name || '';
+  const user = useSelector(selectUser);
   return (
     <>
-      <AppHeaderUI userName={userName} />
+      <AppHeaderUI userName={user?.name ?? ''} />
+      <Outlet />
     </>
   );
 };

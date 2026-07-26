@@ -1,75 +1,26 @@
 import { FC, useEffect, useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-
 import { TIngredient, TOrder } from '@utils-types';
+import { useParams } from 'react-router-dom';
 import { useSelector } from '../../services/store';
-import { getOrderByNumberApi } from '../../utils/burger-api';
+import { getOrderByNumberApi } from '@api';
+import { selectIngredients } from '@selectors';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
-  const { pathname } = useLocation();
 
-  const isFeedPage = pathname.startsWith('/feed');
-  const isProfileOrdersPage = pathname.startsWith('/profile/orders');
+  const [orderData, setOrderData] = useState<TOrder | null>(null);
 
-  const ingredients = useSelector(
-    (state) => state.ingredients.items
-  ) as TIngredient[];
-
-  const feedOrders = useSelector((state) => state.feed.orders);
-  const profileOrders = useSelector((state) => state.profileOrders.orders);
-
-  const [fetchedOrder, setFetchedOrder] = useState<TOrder | null>(null);
-
-
-  const orderFromLists = useMemo(() => {
-    const orderNumber = Number(number);
-    if (!orderNumber) return null;
-
-    if (isFeedPage)
-      return feedOrders.find((o) => o.number === orderNumber) ?? null;
-    if (isProfileOrdersPage)
-      return profileOrders.find((o) => o.number === orderNumber) ?? null;
-
-    return (
-      feedOrders.find((o) => o.number === orderNumber) ??
-      profileOrders.find((o) => o.number === orderNumber) ??
-      null
-    );
-  }, [number, isFeedPage, isProfileOrdersPage, feedOrders, profileOrders]);
-
+  const ingredients: TIngredient[] = useSelector(selectIngredients);
   useEffect(() => {
-    const orderNumber = Number(number);
-    if (!orderNumber) return;
-
-    if (orderFromLists) {
-      setFetchedOrder(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    getOrderByNumberApi(orderNumber)
-      .then((res) => {
-        const order = res.orders?.[0] ?? null;
-        if (!cancelled) setFetchedOrder(order);
-      })
-      .catch(() => {
-        if (!cancelled) setFetchedOrder(null);
+    if (number) {
+      getOrderByNumberApi(Number(number)).then((res) => {
+        setOrderData(res.orders[0]);
       });
+    }
+  }, [number]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [number, orderFromLists]);
-
-  // 3) Источник данных: store -> иначе fetchedOrder
-  const orderData = orderFromLists ?? fetchedOrder;
-
-  // 4) Готовим данные для UI
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -80,13 +31,19 @@ export const OrderInfo: FC = () => {
     };
 
     const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, itemId) => {
-        if (!acc[itemId]) {
-          const ingredient = ingredients.find((ing) => ing._id === itemId);
-          if (ingredient) acc[itemId] = { ...ingredient, count: 1 };
+      (acc: TIngredientsWithCount, item) => {
+        if (!acc[item]) {
+          const ingredient = ingredients.find((ing) => ing._id === item);
+          if (ingredient) {
+            acc[item] = {
+              ...ingredient,
+              count: 1
+            };
+          }
         } else {
-          acc[itemId].count++;
+          acc[item].count++;
         }
+
         return acc;
       },
       {}
