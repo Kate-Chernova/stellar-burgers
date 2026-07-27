@@ -36,10 +36,6 @@ const App = () => {
   }, []);
   const navigate = useNavigate();
 
-  if (!isAuthChecked || isIngredientsLoading) {
-    return <Preloader />;
-  }
-
   return (
     <div className={styles.app}>
       <AppHeader />
