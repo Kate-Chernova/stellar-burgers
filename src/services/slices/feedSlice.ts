@@ -1,45 +1,53 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { getFeedsApi } from '@api';
-import { TOrder, TOrdersData } from '@utils-types';
+import { getFeedsApi } from '../../utils/burger-api';
+import { TOrder } from '../../utils/types';
+
+export const getFeeds = createAsyncThunk('feed/getAll', async () => getFeedsApi());
 
 type TFeedState = {
   orders: TOrder[];
-  feed: { total: number; totalToday: number };
+  total: number;
+  totalToday: number;
   isLoading: boolean;
+  error: string | null;
 };
 
 const initialState: TFeedState = {
   orders: [],
-  feed: { total: 0, totalToday: 0 },
-  isLoading: false
+  total: 0,
+  totalToday: 0,
+  isLoading: false,
+  error: null
 };
-
-export const fetchFeeds = createAsyncThunk(
-  'feed/fetchAll',
-  async () => await getFeedsApi()
-);
 
 const feedSlice = createSlice({
   name: 'feed',
   initialState,
   reducers: {},
+  selectors: {
+    selectOrders: (state) => state.orders,
+    selectTotal: (state) => state.total,
+    selectTotalToday: (state) => state.totalToday,
+    selectFeedLoading: (state) => state.isLoading
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchFeeds.pending, (state) => {
+      .addCase(getFeeds.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
-      .addCase(fetchFeeds.fulfilled, (state, action) => {
+      .addCase(getFeeds.fulfilled, (state, action) => {
         state.isLoading = false;
         state.orders = action.payload.orders;
-        state.feed = {
-          total: action.payload.total,
-          totalToday: action.payload.totalToday
-        };
+        state.total = action.payload.total;
+        state.totalToday = action.payload.totalToday;
       })
-      .addCase(fetchFeeds.rejected, (state) => {
+      .addCase(getFeeds.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.error.message ?? 'Unknown error';
       });
   }
 });
 
 export default feedSlice.reducer;
+export const { selectOrders, selectTotal, selectTotalToday, selectFeedLoading } = feedSlice.selectors;

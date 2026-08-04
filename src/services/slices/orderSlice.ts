@@ -1,52 +1,74 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { orderBurgerApi } from '@api';
-import { TOrder } from '@utils-types';
-
-type TOrderState = {
-  orderRequest: boolean;
-  orderModalData: TOrder | null;
-  error: string | null;
-};
-
-const initialState: TOrderState = {
-  orderRequest: false,
-  orderModalData: null,
-  error: null
-};
+import { orderBurgerApi, getOrderByNumberApi } from '../../utils/burger-api';
+import { TOrder } from '../../utils/types';
 
 export const createOrder = createAsyncThunk(
   'order/create',
   async (ingredients: string[]) => {
     const res = await orderBurgerApi(ingredients);
-    return res.order as unknown as TOrder;
+    return res.order;
   }
 );
+
+export const getOrderByNumber = createAsyncThunk(
+  'order/getByNumber',
+  async (number: number) => {
+    const res = await getOrderByNumberApi(number);
+    return res.orders[0];
+  }
+);
+
+type TOrderState = {
+  order: TOrder | null;
+  isLoading: boolean;
+  error: string | null;
+};
+
+const initialState: TOrderState = {
+  order: null,
+  isLoading: false,
+  error: null
+};
 
 const orderSlice = createSlice({
   name: 'order',
   initialState,
   reducers: {
     clearOrder: (state) => {
-      state.orderModalData = null;
-      state.orderRequest = false;
+      state.order = null;
     }
+  },
+  selectors: {
+    selectOrder: (state) => state.order,
+    selectOrderLoading: (state) => state.isLoading
   },
   extraReducers: (builder) => {
     builder
       .addCase(createOrder.pending, (state) => {
-        state.orderRequest = true;
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(createOrder.fulfilled, (state, action) => {
-        state.orderRequest = false;
-        state.orderModalData = action.payload;
+        state.isLoading = false;
+        state.order = action.payload;
       })
       .addCase(createOrder.rejected, (state, action) => {
-        state.orderRequest = false;
-        state.error = action.error.message ?? 'Ошибка заказа';
+        state.isLoading = false;
+        state.error = action.error.message ?? 'Unknown error';
+      })
+      .addCase(getOrderByNumber.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getOrderByNumber.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.order = action.payload;
+      })
+      .addCase(getOrderByNumber.rejected, (state) => {
+        state.isLoading = false;
       });
   }
 });
 
 export const { clearOrder } = orderSlice.actions;
 export default orderSlice.reducer;
+export const { selectOrder, selectOrderLoading } = orderSlice.selectors;

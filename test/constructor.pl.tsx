@@ -1,92 +1,18 @@
 import { test, expect, Page } from '@playwright/test';
-
-const mockIngredients = {
-  success: true,
-  data: [
-    {
-      _id: '643d69a5c3f7b9001cfa093c',
-      name: 'Краторная булка N-200i',
-      type: 'bun',
-      proteins: 80,
-      fat: 24,
-      carbohydrates: 53,
-      calories: 420,
-      price: 1255,
-      image: 'https://code.s3.yandex.net/react/code/bun-02.png',
-      image_mobile: 'https://code.s3.yandex.net/react/code/bun-02-mobile.png',
-      image_large: 'https://code.s3.yandex.net/react/code/bun-02-large.png',
-      __v: 0
-    },
-    {
-      _id: '643d69a5c3f7b9001cfa0941',
-      name: 'Биокотлета из марсианской Магнолии',
-      type: 'main',
-      proteins: 420,
-      fat: 142,
-      carbohydrates: 242,
-      calories: 4242,
-      price: 424,
-      image: 'https://code.s3.yandex.net/react/code/meat-01.png',
-      image_mobile: 'https://code.s3.yandex.net/react/code/meat-01-mobile.png',
-      image_large: 'https://code.s3.yandex.net/react/code/meat-01-large.png',
-      __v: 0
-    },
-    {
-      _id: '643d69a5c3f7b9001cfa0942',
-      name: 'Соус Spicy-X',
-      type: 'sauce',
-      proteins: 30,
-      fat: 20,
-      carbohydrates: 40,
-      calories: 30,
-      price: 90,
-      image: 'https://code.s3.yandex.net/react/code/sauce-02.png',
-      image_mobile: 'https://code.s3.yandex.net/react/code/sauce-02-mobile.png',
-      image_large: 'https://code.s3.yandex.net/react/code/sauce-02-large.png',
-      __v: 0
-    }
-  ]
-};
-
-const mockUser = {
-  success: true,
-  user: {
-    email: 'test@example.com',
-    name: 'Test User'
-  }
-};
-
-const mockOrder = {
-  success: true,
-  name: 'Краторный био-марсианский бургер',
-  order: {
-    number: 12345
-  }
-};
+import path from 'path';
 
 async function setupMocks(page: Page) {
-  await page.route('**/api/ingredients', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(mockIngredients)
-    });
+  await page.routeFromHAR(path.join(__dirname, 'hars/ingredients.har'), {
+    url: '**/api/ingredients',
+    update: false
   });
-
-  await page.route('**/api/auth/user', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(mockUser)
-    });
+  await page.routeFromHAR(path.join(__dirname, 'hars/user.har'), {
+    url: '**/api/auth/user',
+    update: false
   });
-
-  await page.route('**/api/orders', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(mockOrder)
-    });
+  await page.routeFromHAR(path.join(__dirname, 'hars/order.har'), {
+    url: '**/api/orders',
+    update: false
   });
 }
 
@@ -109,86 +35,96 @@ test.describe('Конструктор бургера', () => {
     await setupMocks(page);
     await setAuthTokens(page);
     await page.goto('/');
-    await page.waitForSelector('text=Соберите бургер');
+    await page.waitForSelector('[data-cy="constructor"]', { timeout: 10000 });
   });
 
   test('Добавление булки в конструктор', async ({ page }) => {
-    const bunCard = page.locator('li', { hasText: 'Краторная булка' });
+    const bunCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Краторная булка' });
     await expect(bunCard).toBeVisible();
 
-    const addButton = bunCard.locator('button:has-text("Добавить")');
-    await addButton.click();
+    await bunCard.locator('button').click();
 
-    const constructor = page.locator('section').filter({ hasText: 'Краторная булка' }).first();
-    await expect(constructor).toContainText('Краторная булка');
+    const constructorBun = page.locator('[data-cy="orderBun"]');
+    await expect(constructorBun).toContainText('Краторная булка');
   });
 
   test('Добавление начинки в конструктор', async ({ page }) => {
-    const mainCard = page.locator('li', { hasText: 'Биокотлета' });
-    const addButton = mainCard.locator('button:has-text("Добавить")');
-    await addButton.click();
+    const mainCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Биокотлета' });
+    await mainCard.locator('button').click();
 
-    const constructor = page.locator('section').filter({ hasText: 'Биокотлета' }).first();
-    await expect(constructor).toContainText('Биокотлета');
+    const constructorMain = page.locator('[data-cy="orderMain"]');
+    await expect(constructorMain).toContainText('Биокотлета');
   });
 
   test('Добавление соуса в конструктор', async ({ page }) => {
-    const sauceCard = page.locator('li', { hasText: 'Соус Spicy-X' });
-    const addButton = sauceCard.locator('button:has-text("Добавить")');
-    await addButton.click();
+    const sauceCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Соус Spicy-X' });
+    await sauceCard.locator('button').click();
 
-    const constructor = page.locator('section').filter({ hasText: 'Соус Spicy-X' }).first();
-    await expect(constructor).toContainText('Соус Spicy-X');
+    const constructorMain = page.locator('[data-cy="orderMain"]');
+    await expect(constructorMain).toContainText('Соус Spicy-X');
   });
 
   test('Открытие модального окна ингредиента', async ({ page }) => {
-    const bunCard = page.locator('li', { hasText: 'Краторная булка' });
+    const bunCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Краторная булка N-200i' });
     await bunCard.click();
 
-    const modal = page.locator('div').filter({ hasText: 'Детали ингредиента' }).first();
+    const modal = page.locator('[data-cy="modalInfo"]');
     await expect(modal).toBeVisible();
-    await expect(page.locator('text=Краторная булка N-200i')).toBeVisible();
+
+    await expect(modal.locator('text=Краторная булка N-200i')).toBeVisible();
+    await expect(modal.locator('text=80')).toBeVisible();
+    await expect(modal.locator('text=420')).toBeVisible();
   });
 
   test('Закрытие модального окна по крестику', async ({ page }) => {
-    const bunCard = page.locator('li', { hasText: 'Краторная булка' });
+    const bunCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Краторная булка N-200i' });
     await bunCard.click();
 
-    const closeButton = page.locator('button svg').first();
+    const modal = page.locator('[data-cy="modalInfo"]');
+    await expect(modal).toBeVisible();
+
+    const closeButton = page.locator('[data-cy="modalClose"]');
     await closeButton.click();
 
-    const modal = page.locator('div').filter({ hasText: 'Детали ингредиента' }).first();
     await expect(modal).not.toBeVisible();
   });
 
   test('Закрытие модального окна по оверлею', async ({ page }) => {
-    const bunCard = page.locator('li', { hasText: 'Краторная булка' });
+    const bunCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Краторная булка N-200i' });
     await bunCard.click();
 
-    await page.keyboard.press('Escape');
+    const modal = page.locator('[data-cy="modalInfo"]');
+    await expect(modal).toBeVisible();
 
-    const modal = page.locator('div').filter({ hasText: 'Детали ингредиента' }).first();
+    const overlay = page.locator('[data-cy="modalOverlay"]');
+    await overlay.click();
+
     await expect(modal).not.toBeVisible();
   });
 
   test('Создание заказа', async ({ page }) => {
-    const bunCard = page.locator('li', { hasText: 'Краторная булка' });
-    await bunCard.locator('button:has-text("Добавить")').click();
+    const bunCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Краторная булка' });
+    await bunCard.locator('button').click();
 
-    const mainCard = page.locator('li', { hasText: 'Биокотлета' });
-    await mainCard.locator('button:has-text("Добавить")').click();
+    const mainCard = page.locator('[data-cy="ingredient"]').filter({ hasText: 'Биокотлета' });
+    await mainCard.locator('button').click();
 
     const orderButton = page.locator('button:has-text("Оформить заказ")');
     await orderButton.click();
 
-    const orderModal = page.locator('div').filter({ hasText: '12345' }).first();
+    const orderModal = page.locator('[data-cy="modal"]');
     await expect(orderModal).toBeVisible();
-    await expect(page.locator('text=12345')).toBeVisible();
 
-    const constructorBun = page.locator('text=Выберите булки');
-    await expect(constructorBun).toBeVisible();
+    const orderNumber = page.locator('[data-cy="number"]');
+    await expect(orderNumber).toHaveText('12345');
 
-    const closeButton = page.locator('button svg').first();
+    const constructorBun = page.locator('[data-cy="orderBun"]');
+    await expect(constructorBun).toContainText('Выберите булки');
+
+    const constructorMain = page.locator('[data-cy="orderMain"]');
+    await expect(constructorMain).toContainText('Выберите начинку');
+
+    const closeButton = page.locator('[data-cy="modalClose"]');
     await closeButton.click();
 
     await expect(orderModal).not.toBeVisible();
