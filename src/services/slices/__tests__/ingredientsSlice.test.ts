@@ -4,8 +4,8 @@ import ingredientsReducer, {
   selectIngredients,
   selectIngredientsLoading,
   selectIngredientsError
-} from './ingredientsSlice';
-import { TIngredient } from '../../utils/types';
+} from '../ingredientsSlice';
+import { TIngredient } from '../../../utils/types';
 
 const mockIngredients: TIngredient[] = [
   {
@@ -39,11 +39,7 @@ const mockIngredients: TIngredient[] = [
 describe('Тестируем слайс ingredients', () => {
   test('Должен возвращать начальное состояние при undefined', () => {
     const state = ingredientsReducer(undefined, { type: 'UNKNOWN_ACTION' });
-    expect(state).toEqual({
-      items: [],
-      isLoading: false,
-      error: null
-    });
+    expect(state).toEqual({ items: [], isLoading: false, error: null });
   });
 
   test('Должен устанавливать isLoading в true при pending', () => {
@@ -73,22 +69,14 @@ describe('Тестируем слайс ingredients', () => {
   });
 
   test('Не должен изменять состояние при неизвестном действии', () => {
-    const currentState = {
-      items: mockIngredients,
-      isLoading: false,
-      error: null
-    };
+    const currentState = { items: mockIngredients, isLoading: false, error: null };
     const state = ingredientsReducer(currentState, { type: 'UNKNOWN_ACTION' });
     expect(state).toEqual(currentState);
   });
 
   describe('Тестируем селекторы ingredients', () => {
     const rootState = {
-      ingredients: {
-        items: mockIngredients,
-        isLoading: false,
-        error: null
-      }
+      ingredients: { items: mockIngredients, isLoading: false, error: null }
     };
 
     test('selectIngredients возвращает items', () => {
