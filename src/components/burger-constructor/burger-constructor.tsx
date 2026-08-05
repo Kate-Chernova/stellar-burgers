@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from '../../services/store';
 import { BurgerConstructorUI } from '@ui';
 import {
   selectOrder,
-n  selectOrderLoading,
+  selectOrderLoading,
   clearOrder,
   createOrder
 } from '../../services/slices/orderSlice';
@@ -14,6 +14,7 @@ import {
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
+
   const constructorItems = useSelector(selectConstructorItems);
   const orderRequest = useSelector(selectOrderLoading);
   const orderModalData = useSelector(selectOrder);
@@ -21,7 +22,10 @@ export const BurgerConstructor: FC = () => {
   const price = useMemo(
     () =>
       (constructorItems.bun ? constructorItems.bun.price * 2 : 0) +
-      constructorItems.ingredients.reduce((s: number, v: { price: number }) => s + v.price, 0),
+      constructorItems.ingredients.reduce(
+        (s: number, v: { price: number }) => s + v.price,
+        0
+      ),
     [constructorItems]
   );
 
