@@ -4,9 +4,10 @@ import {
   loginUserApi,
   logoutApi,
   registerUserApi,
-  updateUserApi
+  updateUserApi,
+  getOrdersApi
 } from '../../utils/burger-api';
-import { TUser } from '../../utils/types';
+import { TUser, TOrder } from '../../utils/types';
 import { setCookie, deleteCookie } from '../../utils/cookie';
 
 export const registerUser = createAsyncThunk(
@@ -48,18 +49,24 @@ export const logoutUser = createAsyncThunk('user/logout', async () => {
   localStorage.removeItem('refreshToken');
 });
 
+export const fetchUserOrders = createAsyncThunk('user/getOrders', async () => {
+  return await getOrdersApi();
+});
+
 type TUserState = {
   user: TUser | null;
   isAuthChecked: boolean;
   isLoading: boolean;
   error: string | null;
+  orders: TOrder[];
 };
 
 const initialState: TUserState = {
   user: null,
   isAuthChecked: false,
   isLoading: false,
-  error: null
+  error: null,
+  orders: []
 };
 
 const userSlice = createSlice({
@@ -73,7 +80,9 @@ const userSlice = createSlice({
   selectors: {
     selectUser: (state) => state.user,
     selectIsAuthChecked: (state) => state.isAuthChecked,
-    selectUserLoading: (state) => state.isLoading
+    selectUserLoading: (state) => state.isLoading,
+    selectUserError: (state) => state.error,
+    selectUserOrders: (state) => state.orders
   },
   extraReducers: (builder) => {
     builder
@@ -116,10 +125,13 @@ const userSlice = createSlice({
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
+      })
+      .addCase(fetchUserOrders.fulfilled, (state, action) => {
+        state.orders = action.payload;
       });
   }
 });
 
 export const { authCheck } = userSlice.actions;
 export default userSlice.reducer;
-export const { selectUser, selectIsAuthChecked, selectUserLoading } = userSlice.selectors;
+export const { selectUser, selectIsAuthChecked, selectUserLoading, selectUserError, selectUserOrders } = userSlice.selectors;

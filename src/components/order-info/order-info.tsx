@@ -5,14 +5,13 @@ import { TIngredient, TOrder } from '@utils-types';
 import { useParams } from 'react-router-dom';
 import { useSelector } from '../../services/store';
 import { getOrderByNumberApi } from '@api';
-import { selectIngredients } from '@selectors';
+import { selectIngredients } from '../../services/slices/ingredientsSlice';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
-
   const [orderData, setOrderData] = useState<TOrder | null>(null);
-
   const ingredients: TIngredient[] = useSelector(selectIngredients);
+
   useEffect(() => {
     if (number) {
       getOrderByNumberApi(Number(number)).then((res) => {
@@ -43,7 +42,6 @@ export const OrderInfo: FC = () => {
         } else {
           acc[item].count++;
         }
-
         return acc;
       },
       {}

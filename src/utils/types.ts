@@ -47,3 +47,21 @@ export type TOrderState = {
   isLoading: boolean;
   error: string | null;
 };
+
+export type TOwner = {
+  name: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TNewOrder = {
+  _id: string;
+  status: string;
+  name: string;
+  owner: TOwner;
+  createdAt: string;
+  updatedAt: string;
+  number: number;
+  price: number;
+};
