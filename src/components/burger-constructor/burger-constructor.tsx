@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+﻿import { FC, useMemo } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { BurgerConstructorUI } from '@ui';
 import {
@@ -7,15 +7,12 @@ import {
   clearOrder,
   createOrder
 } from '../../services/slices/orderSlice';
-import {
-  selectConstructorItems,
-  clearConstructor
-} from '../../services/slices/constructorSlice';
+import { clearConstructor } from '../../services/slices/constructorSlice';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
 
-  const constructorItems = useSelector(selectConstructorItems);
+  const constructorItems = useSelector((state: any) => state.constructor || { bun: null, ingredients: [] });
   const orderRequest = useSelector(selectOrderLoading);
   const orderModalData = useSelector(selectOrder);
 
@@ -33,7 +30,7 @@ export const BurgerConstructor: FC = () => {
     if (!constructorItems.bun || orderRequest) return;
     const ingredients = [
       constructorItems.bun._id,
-      ...constructorItems.ingredients.map((item) => item._id),
+      ...constructorItems.ingredients.map((item: any) => item._id),
       constructorItems.bun._id
     ];
     dispatch(createOrder(ingredients));

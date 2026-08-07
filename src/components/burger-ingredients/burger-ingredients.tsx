@@ -1,15 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { useSelector } from '../../services/store';
 import { useInView } from 'react-intersection-observer';
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
-import { selectIngredients } from '../../services/slices/ingredientsSlice';
 
 export const BurgerIngredients = () => {
-  const ingredients = useSelector(selectIngredients);
-  const buns = ingredients.filter((item) => item.type === 'bun');
-  const mains = ingredients.filter((item) => item.type === 'main');
-  const sauces = ingredients.filter((item) => item.type === 'sauce');
+  const ingredients = useSelector((state: any) => state.ingredients?.items || []);
+  const buns = ingredients.filter((item: any) => item.type === 'bun');
+  const mains = ingredients.filter((item: any) => item.type === 'main');
+  const sauces = ingredients.filter((item: any) => item.type === 'sauce');
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AppHeader } from '@components';
-import { Outlet } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import styles from './app.module.css';
 import { useDispatch, useSelector } from '../../services/store';
 import {
@@ -8,6 +8,7 @@ import {
   selectIngredientsLoading,
   selectIngredientsError
 } from '../../services/slices/ingredientsSlice';
+import { ConstructorPage } from '../../pages/constructor-page/constructor-page';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -29,7 +30,9 @@ const App = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Outlet />
+      <Routes>
+        <Route path='/' element={<ConstructorPage />} />
+      </Routes>
     </div>
   );
 };

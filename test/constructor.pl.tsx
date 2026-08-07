@@ -1,18 +1,101 @@
 import { test, expect, Page } from '@playwright/test';
-import path from 'path';
 
 async function setupMocks(page: Page) {
-  await page.routeFromHAR(path.join(__dirname, 'hars/ingredients.har'), {
-    url: '**/api/ingredients',
-    update: false
+  await page.route('**/api/ingredients', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: [
+          {
+            _id: '643d69a5c3f7b9001cfa093c',
+            name: 'Краторная булка N-200i',
+            type: 'bun',
+            proteins: 80,
+            fat: 24,
+            carbohydrates: 53,
+            calories: 420,
+            price: 1255,
+            image: 'https://code.s3.yandex.net/react/code/bun-02.png',
+            image_mobile: 'https://code.s3.yandex.net/react/code/bun-02-mobile.png',
+            image_large: 'https://code.s3.yandex.net/react/code/bun-02-large.png',
+            __v: 0
+          },
+          {
+            _id: '643d69a5c3f7b9001cfa0941',
+            name: 'Биокотлета из марсианской Магнолии',
+            type: 'main',
+            proteins: 420,
+            fat: 142,
+            carbohydrates: 242,
+            calories: 4242,
+            price: 424,
+            image: 'https://code.s3.yandex.net/react/code/meat-01.png',
+            image_mobile: 'https://code.s3.yandex.net/react/code/meat-01-mobile.png',
+            image_large: 'https://code.s3.yandex.net/react/code/meat-01-large.png',
+            __v: 0
+          },
+          {
+            _id: '643d69a5c3f7b9001cfa0942',
+            name: 'Соус Spicy-X',
+            type: 'sauce',
+            proteins: 30,
+            fat: 20,
+            carbohydrates: 40,
+            calories: 30,
+            price: 90,
+            image: 'https://code.s3.yandex.net/react/code/sauce-02.png',
+            image_mobile: 'https://code.s3.yandex.net/react/code/sauce-02-mobile.png',
+            image_large: 'https://code.s3.yandex.net/react/code/sauce-02-large.png',
+            __v: 0
+          }
+        ]
+      })
+    });
   });
-  await page.routeFromHAR(path.join(__dirname, 'hars/user.har'), {
-    url: '**/api/auth/user',
-    update: false
+
+  await page.route('**/api/auth/user', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        user: { email: 'test@example.com', name: 'Test User' }
+      })
+    });
   });
-  await page.routeFromHAR(path.join(__dirname, 'hars/order.har'), {
-    url: '**/api/orders',
-    update: false
+
+  await page.route('**/api/orders', async (route) => {
+    if (route.request().method() === 'POST') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          name: 'Краторный био-марсианский бургер',
+          order: { number: 12345 }
+        })
+      });
+    } else {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, orders: [] })
+      });
+    }
+  });
+
+  await page.route('**/api/auth/token', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        accessToken: 'mock-access-token',
+        refreshToken: 'mock-refresh-token'
+      })
+    });
   });
 }
 
