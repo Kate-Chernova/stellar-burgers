@@ -3,7 +3,11 @@ import { AppHeader } from '@components';
 import { Outlet } from 'react-router-dom';
 import styles from './app.module.css';
 import { useDispatch, useSelector } from '../../services/store';
-import { getIngredients, selectIngredientsLoading, selectIngredientsError } from '../../services/slices/ingredientsSlice';
+import {
+  getIngredients,
+  selectIngredientsLoading,
+  selectIngredientsError
+} from '../../services/slices/ingredientsSlice';
 
 const App = () => {
   const dispatch = useDispatch();

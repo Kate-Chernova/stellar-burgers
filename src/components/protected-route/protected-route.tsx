@@ -1,6 +1,9 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useSelector } from '../../services/store';
-import { selectUser, selectIsAuthChecked } from '../../services/slices/userSlice';
+import {
+  selectUser,
+  selectIsAuthChecked
+} from '../../services/slices/userSlice';
 import { Preloader } from '@ui';
 
 type Props = {
@@ -23,7 +26,7 @@ export const ProtectedRoute = ({ onlyUnAuth = false }: Props) => {
   }
 
   if (!onlyUnAuth && !isAuth) {
-    return <Navigate to="/login" state={{ from: location }} />;
+    return <Navigate to='/login' state={{ from: location }} />;
   }
 
   return <Outlet />;

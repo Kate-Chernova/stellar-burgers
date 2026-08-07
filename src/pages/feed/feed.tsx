@@ -3,7 +3,11 @@ import { FeedUI } from '@ui-pages';
 import { TOrder } from '@utils-types';
 import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
-import { getFeeds, selectFeedLoading, selectOrders } from '../../services/slices/feedSlice';
+import {
+  getFeeds,
+  selectFeedLoading,
+  selectOrders
+} from '../../services/slices/feedSlice';
 
 export const Feed: FC = () => {
   const dispatch = useDispatch();
@@ -18,7 +22,5 @@ export const Feed: FC = () => {
     return <Preloader />;
   }
 
-  return (
-    <FeedUI orders={orders} handleGetFeeds={() => dispatch(getFeeds())} />
-  );
+  return <FeedUI orders={orders} handleGetFeeds={() => dispatch(getFeeds())} />;
 };

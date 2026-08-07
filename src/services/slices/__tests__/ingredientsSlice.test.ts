@@ -69,7 +69,11 @@ describe('Тестируем слайс ingredients', () => {
   });
 
   test('Не должен изменять состояние при неизвестном действии', () => {
-    const currentState = { items: mockIngredients, isLoading: false, error: null };
+    const currentState = {
+      items: mockIngredients,
+      isLoading: false,
+      error: null
+    };
     const state = ingredientsReducer(currentState, { type: 'UNKNOWN_ACTION' });
     expect(state).toEqual(currentState);
   });

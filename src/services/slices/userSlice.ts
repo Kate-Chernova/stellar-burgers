@@ -12,7 +12,15 @@ import { setCookie, deleteCookie } from '../../utils/cookie';
 
 export const registerUser = createAsyncThunk(
   'user/register',
-  async ({ email, password, name }: { email: string; password: string; name: string }) => {
+  async ({
+    email,
+    password,
+    name
+  }: {
+    email: string;
+    password: string;
+    name: string;
+  }) => {
     const res = await registerUserApi({ email, password, name });
     setCookie('accessToken', res.accessToken);
     localStorage.setItem('refreshToken', res.refreshToken);
@@ -49,9 +57,10 @@ export const logoutUser = createAsyncThunk('user/logout', async () => {
   localStorage.removeItem('refreshToken');
 });
 
-export const fetchUserOrders = createAsyncThunk('user/getOrders', async () => {
-  return await getOrdersApi();
-});
+export const fetchUserOrders = createAsyncThunk(
+  'user/getOrders',
+  async () => await getOrdersApi()
+);
 
 type TUserState = {
   user: TUser | null;
@@ -134,4 +143,10 @@ const userSlice = createSlice({
 
 export const { authCheck } = userSlice.actions;
 export default userSlice.reducer;
-export const { selectUser, selectIsAuthChecked, selectUserLoading, selectUserError, selectUserOrders } = userSlice.selectors;
+export const {
+  selectUser,
+  selectIsAuthChecked,
+  selectUserLoading,
+  selectUserError,
+  selectUserOrders
+} = userSlice.selectors;

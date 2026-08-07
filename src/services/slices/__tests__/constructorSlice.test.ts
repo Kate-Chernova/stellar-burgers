@@ -8,21 +8,45 @@ import constructorReducer, {
 import { TIngredient } from '../../../utils/types';
 
 const mockBun: TIngredient = {
-  _id: 'bun1', name: 'Краторная булка', type: 'bun',
-  proteins: 80, fat: 24, carbohydrates: 53, calories: 420, price: 1255,
-  image: '', image_large: '', image_mobile: ''
+  _id: 'bun1',
+  name: 'Краторная булка',
+  type: 'bun',
+  proteins: 80,
+  fat: 24,
+  carbohydrates: 53,
+  calories: 420,
+  price: 1255,
+  image: '',
+  image_large: '',
+  image_mobile: ''
 };
 
 const mockMain: TIngredient = {
-  _id: 'main1', name: 'Биокотлета', type: 'main',
-  proteins: 420, fat: 142, carbohydrates: 242, calories: 4242, price: 424,
-  image: '', image_large: '', image_mobile: ''
+  _id: 'main1',
+  name: 'Биокотлета',
+  type: 'main',
+  proteins: 420,
+  fat: 142,
+  carbohydrates: 242,
+  calories: 4242,
+  price: 424,
+  image: '',
+  image_large: '',
+  image_mobile: ''
 };
 
 const mockSauce: TIngredient = {
-  _id: 'sauce1', name: 'Соус Spicy-X', type: 'sauce',
-  proteins: 30, fat: 20, carbohydrates: 40, calories: 30, price: 90,
-  image: '', image_large: '', image_mobile: ''
+  _id: 'sauce1',
+  name: 'Соус Spicy-X',
+  type: 'sauce',
+  proteins: 30,
+  fat: 20,
+  carbohydrates: 40,
+  calories: 30,
+  price: 90,
+  image: '',
+  image_large: '',
+  image_mobile: ''
 };
 
 describe('Тестируем слайс constructor', () => {
@@ -52,7 +76,10 @@ describe('Тестируем слайс constructor', () => {
 
   test('Должен заменять булку при добавлении новой', () => {
     let state = constructorReducer(undefined, addIngredient(mockBun));
-    state = constructorReducer(state, addIngredient({ ...mockBun, _id: 'bun2', name: 'Флюоресцентная булка' }));
+    state = constructorReducer(
+      state,
+      addIngredient({ ...mockBun, _id: 'bun2', name: 'Флюоресцентная булка' })
+    );
     expect(state.bun?._id).toBe('bun2');
   });
 
@@ -72,7 +99,10 @@ describe('Тестируем слайс constructor', () => {
     state = constructorReducer(state, addIngredient(main2));
     state = constructorReducer(state, addIngredient(main3));
 
-    state = constructorReducer(state, moveIngredient({ fromIndex: 0, toIndex: 2 }));
+    state = constructorReducer(
+      state,
+      moveIngredient({ fromIndex: 0, toIndex: 2 })
+    );
     expect(state.ingredients[0].name).toBe('Ингредиент 2');
     expect(state.ingredients[1].name).toBe('Ингредиент 3');
     expect(state.ingredients[2].name).toBe('Ингредиент 1');
@@ -87,7 +117,10 @@ describe('Тестируем слайс constructor', () => {
   });
 
   test('Не должен изменять состояние при неизвестном действии', () => {
-    const currentState = { bun: mockBun, ingredients: [{ ...mockMain, id: 'test-id' }] };
+    const currentState = {
+      bun: mockBun,
+      ingredients: [{ ...mockMain, id: 'test-id' }]
+    };
     const state = constructorReducer(currentState, { type: 'UNKNOWN_ACTION' });
     expect(state).toEqual(currentState);
   });

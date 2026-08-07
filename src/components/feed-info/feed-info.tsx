@@ -17,5 +17,11 @@ export const FeedInfo: FC = () => {
   const readyOrders = getOrders(orders, 'done');
   const pendingOrders = getOrders(orders, 'pending');
 
-  return <FeedInfoUI feed={feed} readyOrders={readyOrders} pendingOrders={pendingOrders} />;
+  return (
+    <FeedInfoUI
+      feed={feed}
+      readyOrders={readyOrders}
+      pendingOrders={pendingOrders}
+    />
+  );
 };

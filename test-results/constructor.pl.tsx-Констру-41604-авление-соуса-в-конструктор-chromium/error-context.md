@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: constructor.pl.tsx >> Конструктор бургера >> Добавление булки в конструктор
-- Location: test\constructor.pl.tsx:41:7
+- Name: constructor.pl.tsx >> Конструктор бургера >> Добавление соуса в конструктор
+- Location: test\constructor.pl.tsx:58:7
 
 # Error details
 

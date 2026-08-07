@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: constructor.pl.tsx >> Конструктор бургера >> Добавление булки в конструктор
-- Location: test\constructor.pl.tsx:41:7
+- Name: constructor.pl.tsx >> Конструктор бургера >> Закрытие модального окна по крестику
+- Location: test\constructor.pl.tsx:77:7
 
 # Error details
 

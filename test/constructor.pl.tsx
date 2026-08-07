@@ -25,7 +25,7 @@ async function setAuthTokens(page: Page) {
       path: '/'
     }
   ]);
-  await page.evaluate(() => {
+  await page.addInitScript(() => {
     localStorage.setItem('refreshToken', 'mock-refresh-token');
   });
 }

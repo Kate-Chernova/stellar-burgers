@@ -2,7 +2,9 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getFeedsApi } from '../../utils/burger-api';
 import { TOrder } from '../../utils/types';
 
-export const getFeeds = createAsyncThunk('feed/getAll', async () => getFeedsApi());
+export const getFeeds = createAsyncThunk('feed/getAll', async () =>
+  getFeedsApi()
+);
 
 type TFeedState = {
   orders: TOrder[];
@@ -51,4 +53,10 @@ const feedSlice = createSlice({
 });
 
 export default feedSlice.reducer;
-export const { selectOrders, selectTotal, selectTotalToday, selectFeedLoading, selectFeed } = feedSlice.selectors;
+export const {
+  selectOrders,
+  selectTotal,
+  selectTotalToday,
+  selectFeedLoading,
+  selectFeed
+} = feedSlice.selectors;
