@@ -8,7 +8,7 @@ export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
 
   const constructorItems = useSelector(
-    (state: any) => state.constructor || { bun: null, ingredients: [] }
+    (state: any) => state.burgerConstructor || { bun: null, ingredients: [] }
   );
   const orderRequest = useSelector((state: any) => state.order?.isLoading);
   const orderModalData = useSelector((state: any) => state.order?.order);

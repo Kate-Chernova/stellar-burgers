@@ -31,33 +31,33 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
       </div>
     ) : (
       <div
-        className={`${styles.noBuns} ${styles.noBunsTop} ml-8 mb-4 mr-5 text text_type_main-default`}
+        className={`${styles.noBuns} ml-8 mb-4 mr-5 text text_type_main-default`}
         data-cy='orderBunTop'
       >
         Выберите булки
       </div>
     )}
-    <ul className={styles.elements}>
-      {constructorItems.ingredients.length > 0 ? (
-        constructorItems.ingredients.map(
-          (item: TConstructorIngredient, index: number) => (
+    {constructorItems.ingredients.length > 0 ? (
+      <ul className={styles.elements} data-cy='orderMain'>
+        {constructorItems.ingredients.map(
+          (ingredient: TConstructorIngredient, index: number) => (
             <BurgerConstructorElement
-              ingredient={item}
+              ingredient={ingredient}
               index={index}
               totalItems={constructorItems.ingredients.length}
-              key={item.id}
+              key={ingredient.id}
             />
           )
-        )
-      ) : (
-        <div
-          className={`${styles.noBuns} ml-8 mb-4 mr-5 text text_type_main-default`}
-          data-cy='orderMain'
-        >
-          Выберите начинку
-        </div>
-      )}
-    </ul>
+        )}
+      </ul>
+    ) : (
+      <div
+        className={`${styles.noBuns} ml-8 mb-4 mr-5 text text_type_main-default`}
+        data-cy='orderMain'
+      >
+        Выберите начинку
+      </div>
+    )}
     {constructorItems.bun ? (
       <div className={`${styles.element} mt-4 mr-4`} data-cy='orderBunBottom'>
         <ConstructorElement
@@ -70,37 +70,35 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
       </div>
     ) : (
       <div
-        className={`${styles.noBuns} ${styles.noBunsBottom} ml-8 mb-4 mr-5 text text_type_main-default`}
+        className={`${styles.noBuns} ml-8 mb-4 mr-5 text text_type_main-default`}
         data-cy='orderBunBottom'
       >
         Выберите булки
       </div>
     )}
     <div className={`${styles.total} mt-10 mr-4`}>
-      <div className={`${styles.cost} mr-10`}>
-        <p className={`text ${styles.text} mr-2`}>{price}</p>
+      <div className={`${styles.price} mr-10`}>
+        <p className='text text_type_digits-medium mr-2'>{price}</p>
         <CurrencyIcon type='primary' />
       </div>
       <Button
-        htmlType='button'
         type='primary'
         size='large'
-        children='Оформить заказ'
+        htmlType='button'
         onClick={onOrderClick}
-      />
+      >
+        Оформить заказ
+      </Button>
     </div>
 
     {orderRequest && (
-      <Modal onClose={closeOrderModal} title={'Оформляем заказ...'}>
+      <Modal onClose={closeOrderModal} title='Оформляем заказ...'>
         <Preloader />
       </Modal>
     )}
 
     {orderModalData && (
-      <Modal
-        onClose={closeOrderModal}
-        title={orderRequest ? 'Оформляем заказ...' : ''}
-      >
+      <Modal onClose={closeOrderModal} title={orderModalData.name}>
         <OrderDetailsUI orderNumber={orderModalData.number} />
       </Modal>
     )}

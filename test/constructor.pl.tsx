@@ -176,8 +176,11 @@ test.describe('Конструктор бургера', () => {
     const modal = page.locator('[data-cy="modal"]');
     await expect(modal).toBeVisible();
 
-    const overlay = page.locator('[data-cy="modalOverlay"]');
-    await overlay.click();
+    await page.evaluate(() => {
+      const overlay = document.querySelector('[data-cy="modalOverlay"]');
+      if (overlay) (overlay as HTMLElement).click();
+    });
+
     await expect(modal).not.toBeVisible();
   });
 

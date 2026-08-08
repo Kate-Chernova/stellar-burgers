@@ -3,16 +3,16 @@ import { Preloader } from '../ui/preloader';
 import { IngredientDetailsUI } from '../ui/ingredient-details';
 import { useParams } from 'react-router-dom';
 import { useSelector } from '../../services/store';
-import {
-  selectIngredients,
-  selectIngredientsLoading
-} from '../../services/slices/ingredientsSlice';
 import { TIngredient } from '@utils-types';
 
 export const IngredientDetails: FC = () => {
   const { id } = useParams<{ id: string }>();
-  const ingredients: TIngredient[] = useSelector(selectIngredients);
-  const isIngredientsLoading = useSelector(selectIngredientsLoading);
+  const ingredients: TIngredient[] = useSelector(
+    (state: any) => state.ingredients?.items || []
+  );
+  const isIngredientsLoading = useSelector(
+    (state: any) => state.ingredients?.isLoading
+  );
   const ingredientData = ingredients.find((i: TIngredient) => i._id === id);
 
   if (isIngredientsLoading) {
@@ -20,7 +20,7 @@ export const IngredientDetails: FC = () => {
   }
 
   if (!ingredientData) {
-    return <div>Ингридиент не найден</div>;
+    return <div>Ингредиент не найден</div>;
   }
 
   return <IngredientDetailsUI ingredientData={ingredientData} />;
