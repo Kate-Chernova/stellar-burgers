@@ -38,3 +38,30 @@ export type TUser = {
 };
 
 export type TTabMode = 'bun' | 'sauce' | 'main';
+
+export type TOrderState = {
+  feed: TOrdersData | null;
+  orderData: TOrder[];
+  orderRequest: boolean;
+  orderModalData: TOrder | null;
+  isLoading: boolean;
+  error: string | null;
+};
+
+export type TOwner = {
+  name: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TNewOrder = {
+  _id: string;
+  status: string;
+  name: string;
+  owner: TOwner;
+  createdAt: string;
+  updatedAt: string;
+  number: number;
+  price: number;
+};

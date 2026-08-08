@@ -99,14 +99,14 @@ export const getOrdersApi = () =>
     return Promise.reject(data);
   });
 
-type TOwner = {
+export type TOwner = {
   name: string;
   email: string;
   createdAt: string;
   updatedAt: string;
 };
 
-type TNewOrder = {
+export type TNewOrder = {
   _id: string;
   status: string;
   name: string;
