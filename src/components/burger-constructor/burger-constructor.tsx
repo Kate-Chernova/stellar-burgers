@@ -1,20 +1,17 @@
 ﻿import { FC, useMemo } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { BurgerConstructorUI } from '@ui';
-import {
-  selectOrder,
-  selectOrderLoading,
-  clearOrder,
-  createOrder
-} from '../../services/slices/orderSlice';
+import { clearOrder, createOrder } from '../../services/slices/orderSlice';
 import { clearConstructor } from '../../services/slices/constructorSlice';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
 
-  const constructorItems = useSelector((state: any) => state.constructor || { bun: null, ingredients: [] });
-  const orderRequest = useSelector(selectOrderLoading);
-  const orderModalData = useSelector(selectOrder);
+  const constructorItems = useSelector(
+    (state: any) => state.constructor || { bun: null, ingredients: [] }
+  );
+  const orderRequest = useSelector((state: any) => state.order?.isLoading);
+  const orderModalData = useSelector((state: any) => state.order?.order);
 
   const price = useMemo(
     () =>

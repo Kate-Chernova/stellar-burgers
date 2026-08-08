@@ -3,17 +3,13 @@ import { AppHeader } from '@components';
 import { Routes, Route } from 'react-router-dom';
 import styles from './app.module.css';
 import { useDispatch, useSelector } from '../../services/store';
-import {
-  getIngredients,
-  selectIngredientsLoading,
-  selectIngredientsError
-} from '../../services/slices/ingredientsSlice';
+import { getIngredients } from '../../services/slices/ingredientsSlice';
 import { ConstructorPage } from '../../pages/constructor-page/constructor-page';
 
 const App = () => {
   const dispatch = useDispatch();
-  const isLoading = useSelector(selectIngredientsLoading);
-  const error = useSelector(selectIngredientsError);
+  const isLoading = useSelector((state: any) => state.ingredients?.isLoading);
+  const error = useSelector((state: any) => state.ingredients?.error);
 
   useEffect(() => {
     dispatch(getIngredients());

@@ -66,11 +66,13 @@ module.exports = {
     filename: 'bundle.js',
     publicPath: '/'
   },
-  devServer: {
-    static: path.join(__dirname, './dist'),
-    compress: true,
-    historyApiFallback: true,
-    port: 4000,
-    client: { overlay: false }
+devServer: {
+  static: path.join(__dirname, './dist'),
+  compress: true,
+  historyApiFallback: true,
+  port: 4000,
+  client: {
+    overlay: false
   }
+}
 };
